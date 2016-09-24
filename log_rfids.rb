@@ -1,9 +1,12 @@
+
 require_relative 'rfid'
 
 def process_rfid(device)
   RFID.open(device) do |rfid|
-    while true
-      puts rfid.next_id
+    File.open("rfid.log", "w") do |log|
+      while true
+        log.puts rfid.next_id
+      end
     end
   end
 end
