@@ -11,12 +11,17 @@ class Attendance
     @hours[row,col] = value
   end
 
+  def get(row, col)
+    @hours[row,col]
+  end
+
   def save 
     @hours.save
   end 
 
   DATEROW = 1
-  RFIDCOL = 2
+  RFIDCOL = 3
+  TOTALCOL = 2
 
   def get_date_col(date)
     (1..@hours.num_cols).each do |col|
@@ -35,9 +40,11 @@ class Attendance
         return row
       end 
     end 
-    #could not find the id number 
-    @hours[@hours.num_rows + 1, RFIDCOL] = rfid 
-    return @hours.num_rows
+    #could not find the id number
+    new_row = @hours.num_rows + 1 
+    @hours[new_row, RFIDCOL] = rfid
+    @hours[new_row, TOTALCOL] = "=SUM(D#{new_row}:#{new_row})"  
+    return new_row
   end 
 end 
 
