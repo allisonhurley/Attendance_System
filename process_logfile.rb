@@ -1,9 +1,41 @@
 require_relative "attendance"
 require "time"
 
+def new_day? 
+  if !File.exists?("lastran")
+    File.open("lastran","w") do |lr|
+      lr.puts Date.today
+    end
+  end 
+
+  IO.read("lastran").chomp != Date.today.to_s
+end
+
+def stop_log_rfid
+  system %Q|pkill -f "^ruby log_rfids.rb"|
+end
+ 
+def rename_log_file
+  system %Q|mv rfid.log rfid-#{IO.read("lastran").chomp}.log|
+end
+ 
+def start_log_rfid
+  pid = Process.spawn("ruby log_rfids.rb", 
+                    :out => '/dev/null', :err => '/dev/null')
+  # Detach the spawned process
+  Process.detach pid
+end
+
 attendance = Attendance.new
 punches = {}
 today = nil 
+
+if new_day?
+  stop_log_rfid
+  rename_log_file
+  start_log_rfid
+  File.unlink "lastran"
+end
 
 File.open("rfid.log", "r") do |log|
   log.each_line do |line|
