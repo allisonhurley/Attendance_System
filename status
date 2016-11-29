@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd /home/pi/Attendance_System
+while true 
+do
+  ruby status.rb 2>&1 > /home/pi/status.log
+  sleep 10
+  echo Restarting status 
+done
+

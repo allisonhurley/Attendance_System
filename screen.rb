@@ -2,9 +2,15 @@ require 'sdl2/ttf'
 require 'sdl2/image'
 
 class Screen
+  attr_accessor :screen
+  attr_accessor :font_size
+  attr_accessor :backgroundColor
+  attr_accessor :textColor
+
   def initialize
     SDL2.init!(:EVERYTHING)
-    @window = SDL2::Window.create(title: "Hi Pat", width: 480, height: 320)
+    #@window = SDL2::Window.create(title: "Hi Pat", width: 480, height: 320)
+    @window = SDL2::Window.create
     @window.fullscreen = SDL2::Window::FLAGS::FULLSCREEN
     @screen = @window.surface
     SDL2::TTF.init!
@@ -33,6 +39,15 @@ class Screen
     return if msg.length == 0
     msg = get_font(size).render_text_blended_wrapped(msg, @screen.w, @textColor)
     msg.blit_out(@screen, x: x, y: y)
+    msg.free
+  end
+
+  def height
+    @screen.h
+  end
+
+  def width
+    @screen.w
   end
 
   def update
@@ -53,10 +68,24 @@ class Screen
         update do 
           yield event, self
         end
+
+        if event && event.type == :QUIT
+          quit
+        end
       rescue StandardError => e
-        puts "Unexpected error #{e}"
+        if e.to_s.match(/surface/i)
+          puts "Attempting to get new surface"
+          @window = SDL2::Window.create
+          @window.fullscreen = SDL2::Window::FLAGS::FULLSCREEN
+          @screen = @window.surface
+          @screen = @window.surface
+        else
+          puts "Unexpected error #{e}"
+        end
       end
-      sleep(0.25)
+
+      # be polite
+      sleep(0)
     end
   end
 

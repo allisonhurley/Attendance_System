@@ -1,22 +1,22 @@
-
+require 'thread'
 require_relative 'rfid'
 
+@queue = Queue.new
+
 def process_rfid(device)
-  # puts "Opening #{device}"
+  puts "Opening #{device}"
   RFID.open(device) do |rfid|
 
-    # puts "Opened #{device}"
-    File.open("rfid.log","a") do |log|
+    while true
+      id = rfid.next_id
 
-      while true
-        id = rfid.next_id
-        # puts "We have >#{id}<"
-        log.puts Time.now.to_s + " " + id
-        log.flush
-      end
+      # assume an error state and attempt to reopen
+      return if id.nil? || id.size != 10
 
-      sleep 0.5
+      puts "We have >#{id}<"
+      @queue << id
     end
+
   end
 end
 
@@ -38,6 +38,11 @@ Dir.glob("/dev/input/by-id/usb-Sycread*").each do |event|
 end
 
 while true
-  sleep 30
+  id = @queue.pop
+  puts "Process #{id}"
+
+  File.open("rfid.log","a") do |log|
+    log.puts Time.now.to_s + " " + id
+  end
 end
 

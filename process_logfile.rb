@@ -24,8 +24,8 @@ def rename_log_file
 end
  
 def start_log_rfid
-  pid = Process.spawn("ruby log_rfids.rb", 
-                    :out => '/dev/null', :err => '/dev/null')
+  log_file = ['/home/pi/Attendance_System/reader.log', 'a']
+  pid = Process.spawn("ruby log_rfids.rb", :out => log_file, :err => log_file)
   # Detach the spawned process
   Process.detach pid
 end
