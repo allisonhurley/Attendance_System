@@ -1,4 +1,7 @@
 *.gem
+members.dat
+lastran
+*.log
 *.rbc
 /.config
 /coverage/

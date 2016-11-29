@@ -1,6 +1,10 @@
 require_relative "attendance"
 require "time"
 
+def log_rfid_running?
+  system %Q|pgrep -f "^ruby log_rfids.rb"|
+end
+
 def new_day? 
   if !File.exists?("lastran")
     File.open("lastran","w") do |lr|
@@ -26,7 +30,6 @@ def start_log_rfid
   Process.detach pid
 end
 
-attendance = Attendance.new
 punches = {}
 today = nil 
 
@@ -35,7 +38,14 @@ if new_day?
   rename_log_file
   start_log_rfid
   File.unlink "lastran"
+else
+  # verify log_rfids is running
+  if !log_rfid_running?
+    start_log_rfid
+  end
 end
+
+attendance = Attendance.new
 
 File.open("rfid.log", "r") do |log|
   log.each_line do |line|

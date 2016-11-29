@@ -1,4 +1,5 @@
 require 'google_drive'
+require 'faker'
 
 class Attendance 
   def initialize 
@@ -19,9 +20,24 @@ class Attendance
     @hours.save
   end 
 
+  NAMECOL = 1
   DATEROW = 1
   RFIDCOL = 3
+  STUDCOL = 4
   TOTALCOL = 2
+
+  def dump_members
+    File.open("members.dat", "w") do |members|
+      (DATEROW + 1..@hours.num_rows).each do |row|
+        name = @hours[row,NAMECOL]
+        id = @hours[row, RFIDCOL]
+        stud = @hours[row, STUDCOL]
+
+        name = Faker::Name.name if name.to_s.length == 0
+        members.puts "#{name}\t#{id}\t#{stud}"
+      end
+    end
+  end
 
   def get_date_col(date)
     (1..@hours.num_cols).each do |col|
