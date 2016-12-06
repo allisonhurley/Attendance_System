@@ -93,9 +93,10 @@ end
   next if evt.nil? 
 
   if evt.type == :KEYUP 
-    puts "Event #{evt.key.keysym.sym.inspect}"
-    #puts (evt.key.public_methods - Object.new.public_methods).sort.join("\n")
-    STDOUT.flush
+    # puts "Event #{evt.key.keysym.sym.inspect}"
+    # puts (evt.key.public_methods - Object.new.public_methods).sort.join("\n")
+    # STDOUT.flush
+
     key = evt.key.keysym.sym
     ch = key.to_s
     if ch.match(/KP_(\d)/)
@@ -105,7 +106,7 @@ end
     elsif key == :BACKSPACE
       input = input[0..-2]
     elsif key == :KP_ENTER
-      if stud_lookup[input] != nil
+      if input.size > 0 && stud_lookup[input] != nil
         status = stud_lookup[input]
         last_member = rfid_lookup[status]
       else 
@@ -115,8 +116,32 @@ end
         l.puts Time.now.to_s + " " + status 
       end   
       input = "" 
+    elsif key == :KP_MULTIPLY 
+      last_member = "Joe is mom, don't forget to thank mom"
+      status = "" 
+      input = ""
+    elsif key == :KP_PERIOD 
+      last_member = "Mr. O is the  best"
+      status = "" 
+      input = ""
+    elsif key == :KP_PLUS 
+      last_member = "You ugly! You your daddy's son!"
+      status = "" 
+      input = ""
     elsif key == :KP_MINUS 
-      last_member = "ALLISON HURLEY IS THE SUMPREMEST HUMAN BEING TO EVER WALK PLANET EARTH!!!"
+      last_member = "ALLISON IS SUMPREMEST HUMAN!!!"
+      status = "" 
+      input = ""
+    elsif key == :KP_DIVIDE 
+      last_member = "Ada Lovelace, ask programming"
+      status = "" 
+      input = ""
+    elsif key == :NUMLOCKCLEAR 
+      last_member = "Ouch don't press that"
+      status = "" 
+      input = ""
+    else
+      last_member = key.to_s
       status = "" 
       input = ""
     end
@@ -124,8 +149,8 @@ end
   end
 
   if evt.type == :MOUSEBUTTONUP 
-    puts evt.button.x
-    puts evt.button.y
+    # puts evt.button.x
+    # puts evt.button.y
 
   else 
   end
