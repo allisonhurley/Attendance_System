@@ -20,18 +20,20 @@ class Attendance
     @hours.save
   end 
 
-  NAMECOL = 1
+  FIRST_NAMECOL = 1
+  LAST_NAMECOL = 2
   DATEROW = 1
   RFIDCOL = 3
-  STUDCOL = 4
-  TOTALCOL = 2
+  STUDCOL = 5
+  TOTALCOL = 4
 
   def dump_members
     File.open("members.dat", "w") do |members|
       (DATEROW + 1..@hours.num_rows).each do |row|
-        name = @hours[row,NAMECOL]
-        id = @hours[row, RFIDCOL]
+        name = "#{@hours[row,FIRST_NAMECOL]} #{@hours[row,LAST_NAMECOL]}".strip
+        id = @hours[row, RFIDCOL].to_s.rjust(10,'0')
         stud = @hours[row, STUDCOL]
+        studid = @hours[row, STUDCOL].to_s
 
         name = Faker::Name.name if name.to_s.length == 0
         members.puts "#{name}\t#{id}\t#{stud}"
@@ -51,6 +53,7 @@ class Attendance
   end 
 
   def get_rfid_row(rfid)
+    rfid = rfid.to_i
     (1..@hours.num_rows).each do |row|
       if rfid == @hours[row, RFIDCOL].to_i
         return row

@@ -42,8 +42,8 @@ end
 
 punches = {}
 
-last_member = "Lightning Robotics"
-status = "Attendance System"
+last_member = "Lightning Attendance System"
+status = ""
 input = ""
 kickoff = Time.new(2017,1,7,10)
 bag = Time.new(2017,2,22)
@@ -115,7 +115,12 @@ end
         l.puts Time.now.to_s + " " + status 
       end   
       input = "" 
+    elsif key == :KP_MINUS 
+      last_member = "ALLISON HURLEY IS THE SUMPREMEST HUMAN BEING TO EVER WALK PLANET EARTH!!!"
+      status = "" 
+      input = ""
     end
+     
   end
 
   if evt.type == :MOUSEBUTTONUP 
