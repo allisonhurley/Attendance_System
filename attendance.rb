@@ -7,7 +7,11 @@ class Attendance
     @sheet = @session.spreadsheet_by_title("Attendance")
     @hours = @sheet.worksheets[0]
   end
-  
+ 
+  def session
+    @session
+  end
+
   def set(row, col,value)
     @hours[row,col] = value
   end
@@ -22,18 +26,22 @@ class Attendance
 
   FIRST_NAMECOL = 1
   LAST_NAMECOL = 2
-  DATEROW = 1
   RFIDCOL = 3
-  STUDCOL = 5
   TOTALCOL = 4
+  STUDCOL = 5
+  EMAILCOL = 6
+
+  DATEROW = 1
 
   def dump_members
     File.open("members.dat", "w") do |members|
       (DATEROW + 1..@hours.num_rows).each do |row|
         name = "#{@hours[row,FIRST_NAMECOL]} #{@hours[row,LAST_NAMECOL]}".strip
         id = @hours[row, RFIDCOL].to_s.rjust(10,'0')
+        @hours[row, RFIDCOL + 3] = id
         stud = @hours[row, STUDCOL]
         studid = @hours[row, STUDCOL].to_s
+        @hours[row, STUDCOL] = studid
 
         name = Faker::Name.name if name.to_s.length == 0
         members.puts "#{name}\t#{id}\t#{stud}"
@@ -43,10 +51,13 @@ class Attendance
 
   def get_date_col(date)
     (1..@hours.num_cols).each do |col|
+      next if col <= EMAILCOL
+
       if date == @hours[DATEROW,col]
         return col
       end
     end
+
     # did not find date, add it 
     @hours[DATEROW, @hours.num_cols + 1] = date 
     return @hours.num_cols
@@ -64,6 +75,17 @@ class Attendance
     @hours[new_row, RFIDCOL] = rfid
     @hours[new_row, TOTALCOL] = "=SUM(D#{new_row}:#{new_row})"  
     return new_row
+  end 
+
+  def get_name_row(name)
+    name = name.to_s.strip.gsub(/\s+/," ")
+    (1..@hours.num_rows).each do |row|
+      if name == "#{@hours[row, FIRST_NAMECOL]} #{@hours[row, LAST_NAMECOL]}".strip.gsub(/\s+/," ")
+        return row
+      end 
+    end 
+
+    return nil
   end 
 end 
 
