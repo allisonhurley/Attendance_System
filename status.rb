@@ -40,11 +40,14 @@ members.each do |name, rfid, studid|
   stud_lookup[studid.chomp] = rfid
 end
 
+reset = false
 punches = {}
 
 last_member = "Lightning Attendance System"
 status = ""
 input = ""
+shutdown_count = 0
+reset_count = 0
 kickoff = Time.new(2017,1,7,10)
 bag = Time.new(2017,2,22)
 log = File.open("rfid.log")
@@ -62,6 +65,19 @@ screen.poll do |evt, scr|
   else
     scr.text(sprintf("bag: %d days %d:%02d:%02d", *seconds_to_dhms(bag- now)), 10, scr.height - 75, 25)
   end
+
+  if File.exists?("new_log") || reset
+    puts "Resetting"
+    File.unlink("new_log") rescue nil
+    puts "Close log file"
+    log.close
+    puts "Reopen log file"
+    log = File.open("rfid.log")
+    punches = {}
+    reset = false
+    reset_count = 0
+  end
+
 begin
   if line = log.gets
     if line.match(/^(.*) (\d+)$/) 
@@ -77,12 +93,6 @@ begin
         punches[rfid] = date
         status = "Punch In"  
       end
-    end
-  else
-    if log.stat.size <= 0
-      log.close
-      punches = {}
-      log = File.open("rfid.log")
     end
   end
 
@@ -136,23 +146,26 @@ end
       last_member = "Ada Lovelace, ask programming"
       status = "" 
       input = ""
+      reset_count += 1
+      if reset_count > 7
+        last_member = "Reopen rfid.log file"
+        reset_count = 0
+        reset = true
+      end
     elsif key == :NUMLOCKCLEAR 
       last_member = "Ouch don't press that"
+      shutdown_count += 1
       status = "" 
       input = ""
+      if shutdown_count > 7
+         shutdown_count = 0
+         system("sudo shutdown -h now")
+      end
     else
-      last_member = key.to_s
-      status = "" 
-      input = ""
+      reset_count = 0
+      shudown_count = 0
     end
      
-  end
-
-  if evt.type == :MOUSEBUTTONUP 
-    # puts evt.button.x
-    # puts evt.button.y
-
-  else 
   end
 
 end

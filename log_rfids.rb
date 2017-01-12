@@ -37,6 +37,10 @@ Dir.glob("/dev/input/by-id/usb-Sycread*").each do |event|
   sleep 3
 end
 
+File.open("rfid.log","a") do |log|
+  log.puts "# log_rfid started at #{Time.now}"
+end
+
 while true
   id = @queue.pop
   puts "Process #{id}"

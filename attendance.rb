@@ -30,6 +30,7 @@ class Attendance
   TOTALCOL = 4
   STUDCOL = 5
   EMAILCOL = 6
+  FIRST_DATE_COL = 7
 
   DATEROW = 1
 
@@ -73,7 +74,7 @@ class Attendance
     #could not find the id number
     new_row = @hours.num_rows + 1 
     @hours[new_row, RFIDCOL] = rfid
-    @hours[new_row, TOTALCOL] = "=SUM(D#{new_row}:#{new_row})"  
+    @hours[new_row, TOTALCOL] = "=SUM(G#{new_row}:#{new_row})"  
     return new_row
   end 
 
@@ -87,5 +88,20 @@ class Attendance
 
     return nil
   end 
+
+  def each_date 
+    (FIRST_DATE_COL..@hours.num_cols).each do |col|
+      yield col, @hours[DATEROW, col]
+    end
+  end
+
+  def each_student(col)
+    data = nil
+    (2..@hours.num_rows).each do |row|
+      data = @hours[row, col] unless col.nil?
+      yield row, @hours[row, FIRST_NAMECOL], @hours[row, LAST_NAMECOL], data
+    end
+  end
+
 end 
 
