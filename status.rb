@@ -148,9 +148,8 @@ end
       input = ""
       reset_count += 1
       if reset_count > 7
-        last_member = "Reopen rfid.log file"
         reset_count = 0
-        reset = true
+        system("sudo shutdown -r now")
       end
     elsif key == :NUMLOCKCLEAR 
       last_member = "Ouch don't press that"
